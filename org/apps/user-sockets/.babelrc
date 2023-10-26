@@ -1,0 +1,15 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": {
+        "node": "14.6.0"
+      }
+    }]
+  ],
+  "plugins": [
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-proposal-throw-expressions",
+    "@babel/proposal-class-properties"
+  ],
+  "sourceMaps": "both"
+}

@@ -1,0 +1,110 @@
+{
+  "name": "user-sockets",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/user-sockets/src/dist",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/user-sockets",
+        "main": "apps/user-sockets/src/app.js",
+        "bundle": false,
+        "outputFileName": "index.js",
+        "tsConfig": "apps/user-sockets/tsconfig.app.json",
+        "generatePackageJson": true,
+        "thirdParty": false,
+        "platform": "node",
+        "format": ["cjs"],
+        "external": [
+          "newrelic",
+          "elastic-apm-node",
+          "jsonwebtoken",
+          "http-status"
+        ],
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "user-sockets:build",
+        "inspect": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "user-sockets:build:development"
+        },
+        "production": {
+          "buildTarget": "user-sockets:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "apps/user-sockets/**/*.ts",
+          "apps/user-sockets/**/*.js"
+        ]
+      }
+    },
+    "test": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "test"
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "options": {
+        "engine": "docker",
+        "file": "resources/dockerfiles/Dockerfile.node",
+        "build-args": ["APP=user-sockets"],
+        "metadata": {
+          "images": [
+            "253453061666.dkr.ecr.ca-central-1.amazonaws.com/atlantic-dawn"
+          ]
+        }
+      }
+    },
+    "container:ci": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["node ./resources/deploy/container.js apps/user-sockets"]
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["node ./resources/deploy/deploy.js apps/user-sockets"]
+      }
+    }
+  },
+  "tags": ["type:microservice", "framework:hapi", "env:node"]
+}

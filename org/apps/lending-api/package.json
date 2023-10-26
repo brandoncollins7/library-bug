@@ -1,0 +1,11 @@
+{
+  "name": "lending-api",
+  "version": "0.7.2-beta.2",
+  "dependencies": {
+    "@prisma/client": "^5.0.0",
+    "prisma": "^5.0.0"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} seed.ts.js"
+  }
+}

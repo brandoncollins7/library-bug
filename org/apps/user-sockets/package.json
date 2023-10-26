@@ -1,0 +1,22 @@
+{
+  "name": "user-sockets",
+  "version": "1.1.1",
+  "private": true,
+  "scripts": {
+    "start": "node -r @babel/register src/app.js",
+    "start:dev": "npx nodemon src/app.js --exec \"node -r dotenv/config -r @babel/register\"",
+    "test": "cross-env NODE_ENV=test mocha ./test --recursive -r ../../resources/babel/register --exit --timeout 10000",
+    "test:coverage": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text-summary --statements 75 --functions 75 --lines 75 --check-coverage true mocha ./test --recursive -r @babel/register -r tsconfig-paths/register --exit -r dotenv/config --timeout=10000",
+    "//": "The below script requires you to set NPM_AUTH_TOKEN env variable on your host machine to your npm auth token. Use it if you want to run the test from within docker like the CI build does",
+    "test:docker": "cross-env docker build --build-arg npm_auth_token=$NPM_AUTH_TOKEN --target=build -t test . && cross-env BASE_IMAGE_NAME=test COMMAND=\"pnpm run test:coverage\" docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from test --remove-orphans",
+    "clean": "rimraf dist",
+    "build": "npm run clean && babel src -s -D -d dist",
+    "migrate": "true"
+  },
+  "nyc": {
+    "exclude": [
+      "src/rascal.js",
+      "src/config.js"
+    ]
+  }
+}

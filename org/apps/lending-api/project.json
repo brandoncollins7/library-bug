@@ -1,0 +1,190 @@
+{
+  "name": "lending-api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/lending-api",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/lending-api",
+        "main": "apps/lending-api/src/main.ts",
+        "tsConfig": "apps/lending-api/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/lending-api/webpack.config.js"
+      },
+      "configurations": {
+        "development": {
+          "optimization": false
+        },
+        "production": {
+          "generatePackageJson": true,
+          "assets": [
+            "apps/lending-api/src/assets",
+            {
+              "glob": "**",
+              "input": "apps/lending-api/prisma",
+              "output": "."
+            },
+            {
+              "glob": "*.node",
+              "input": "libs/apps/lending-api/models/src/lib",
+              "output": "."
+            },
+            {
+              "glob": "schema.prisma",
+              "input": "apps/lending-api/prisma",
+              "output": "./schema.prisma"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "lending-api:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "lending-api:build:development"
+        },
+        "production": {
+          "buildTarget": "lending-api:build:production"
+        }
+      },
+      "dependsOn": ["prisma-generate"]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/lending-api/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/lending-api/jest.config.ts",
+        "passWithNoTests": true,
+        "runInBand": false
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "e2e": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
+      "options": {
+        "jestConfig": "apps/lending-api/e2e/jest.config.ts",
+        "passWithNoTests": false,
+        "runInBand": true
+      },
+      "dependsOn": ["prisma-generate", "build"]
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "options": {
+        "engine": "docker",
+        "file": "resources/dockerfiles/Dockerfile.nestjs",
+        "build-args": ["APP=lending-api"],
+        "metadata": {
+          "images": [
+            "253453061666.dkr.ecr.ca-central-1.amazonaws.com/atlantic-dawn"
+          ]
+        }
+      }
+    },
+    "container:ci": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["node ./resources/deploy/container.js apps/lending-api"]
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["node ./resources/deploy/deploy.js apps/lending-api"]
+      }
+    },
+    "prisma-generate": {
+      "executor": "@nx-tools/nx-prisma:generate",
+      "options": {
+        "schema": "apps/lending-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-migrate": {
+      "executor": "@nx-tools/nx-prisma:migrate",
+      "options": {
+        "schema": "apps/lending-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-pull": {
+      "executor": "@nx-tools/nx-prisma:pull",
+      "options": {
+        "schema": "apps/lending-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-push": {
+      "executor": "@nx-tools/nx-prisma:push",
+      "options": {
+        "schema": "apps/lending-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-deploy": {
+      "executor": "@nx-tools/nx-prisma:deploy",
+      "options": {
+        "schema": "apps/lending-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-status": {
+      "executor": "@nx-tools/nx-prisma:status",
+      "options": {
+        "schema": "apps/lending-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-studio": {
+      "executor": "@nx-tools/nx-prisma:studio",
+      "options": {
+        "schema": "apps/lending-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-reset": {
+      "executor": "@nx-tools/nx-prisma:reset",
+      "options": {
+        "schema": "apps/lending-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-resolve": {
+      "executor": "@nx-tools/nx-prisma:resolve",
+      "options": {
+        "schema": "apps/lending-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-seed": {
+      "executor": "@nx-tools/nx-prisma:seed",
+      "options": {
+        "script": "dist/apps/lending-api/seed.ts.js",
+        "tsConfig": "apps/lending-api/tsconfig.app.json"
+      },
+      "dependsOn": ["build"]
+    },
+    "prisma-validate": {
+      "executor": "@nx-tools/nx-prisma:validate",
+      "options": {
+        "schema": "apps/lending-api/prisma/schema.prisma"
+      }
+    }
+  },
+  "tags": ["type:microservice", "framework:nestjs", "env:node", "prisma"]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "apps-lending-api-models",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/apps/lending-api/models/src",
+  "projectType": "library",
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/apps/lending-api/models/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["nx prisma-generate lending-api"],
+        "outputs": ["./libs/apps/lending-api/models/src/lib"]
+      }
+    }
+  },
+  "tags": ["env:node", "type:util"]
+}
